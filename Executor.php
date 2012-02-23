@@ -42,6 +42,7 @@ class Executor
     // Provided Options should override interpreted options
     curl_setopt_array($handle, $options);
 
+    $result = curl_exec($handle);
     curl_close($handle);
   }
 
@@ -67,5 +68,13 @@ class Executor
       curl_setopt($handle,CURLOPT_CUSTOMREQUEST,$method);
     }
   }
- 
+
+  static private errorCheckAndHandling(resource $handle) {
+      $error_no = curl_errno($handle);
+
+      if(0 !== $error_no) {
+          throw new CurlErrorException(curl_error($handle), $error_no);
+      }
+  }
+  
 }
