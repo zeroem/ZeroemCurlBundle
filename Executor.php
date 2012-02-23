@@ -20,6 +20,13 @@ class Executor
     "PUT"=>CURLOPT_PUT
   );
 
+  /**
+   * Execute a Request object via cURL
+   *
+   * @param Request $request the request to execute
+   * @param array $options additional curl options to set/override
+   * @return Response
+   */
   static public function execute(Request $request, array $options = array()) {
 
     $handle = curl_init($request->getUri());
