@@ -8,6 +8,9 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\HeaderBag;
 
+use Zeroem\RemoteHttpKernelBundle\ResponsePopulator\PopulateHeaders;
+use Zeroem\RemoteHttpKernelBundle\ResponsePopulator\PopulateContent;
+
 /**
  * Utility class for parsing a Request object into a cURL request
  * and executing it.
@@ -62,36 +65,41 @@ class RemoteHttpKernel implements HttpKernelInterface
 
         $handle = curl_init($request->getUri());
 
+        $response = new Response();
+
         curl_setopt_array(
             $handle,
             array(
-                CURLOPT_RETURNTRANSFER=>true,
-                CURLOPT_HTTPHEADER=>static::buildHeadersArray($request->headers)
+                CURLOPT_HTTPHEADER=>$this->buildHeadersArray($request->headers),
+                CURLOPT_HEADERFUNCTION=>array(new PopulateHeaders($response),"populate"),
+                CURLOPT_WRITEFUNCTION=>array(new PopulateContent($response),"populate"),
             )
         );
 
-        static::setMethod($handle,$request);
+        $this->setMethod($handle,$request);
 
         if ("POST" === $request->getMethod()) {
-            static::setPostFields($handle, $request);
+            $this->setPostFields($handle, $request);
         }
 
         // Provided Options should override interpreted options
         curl_setopt_array($handle, $options);
 
-        $result = curl_exec($handle);
-        
-        $exception = static::getErrorException($handle);
+        curl_exec($handle);
+
+        $exception = $this->getErrorException($handle);
         curl_close($handle);
         
         if (false !== $exception) {
             throw $exception;
         }
 
-        return $result;
+        $response->setStatusCode(curl_getinfo($handle,CURLINFO_HTTP_CODE));
+
+        return $response;
     }
 
-    static private function setPostFields(resource $handle, Request $request) {
+    private function setPostFields(resource $handle, Request $request) {
         $postfields = null;
         $content = $request->getContent();
 
@@ -104,7 +112,7 @@ class RemoteHttpKernel implements HttpKernelInterface
         curl_setopt($handle, CURLOPT_POSTFIELDS, $postfields);
     }
 
-    static private function setMethod(resource $handle, Request $request) {
+    private function setMethod(resource $handle, Request $request) {
         $method = $request->getMethod();
 
         if (isset(static::$_methodOptionMap[$method])) {
@@ -114,7 +122,7 @@ class RemoteHttpKernel implements HttpKernelInterface
         }
     }
 
-    static private function getErrorException(resource $handle) {
+    private function getErrorException(resource $handle) {
         $error_no = curl_errno($handle);
 
         if (0 !== $error_no) {
@@ -124,7 +132,7 @@ class RemoteHttpKernel implements HttpKernelInterface
         return false;
     }
 
-    static private function buildHeadersArray(HeaderBag $headerBag) {
+    private function buildHeadersArray(HeaderBag $headerBag) {
         $headers = array();
 
         foreach($headerBag->all() as $header=>$value) {
@@ -134,7 +142,7 @@ class RemoteHttpKernel implements HttpKernelInterface
         return $headers;
     }
 
-    static private function makeHeaderName($str) {
+    private function makeHeaderName($str) {
         $parts = explode("_",strtolower($str));
         
         foreach($parts as &$part) {
