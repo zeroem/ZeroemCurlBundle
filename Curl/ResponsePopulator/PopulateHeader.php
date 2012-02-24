@@ -25,7 +25,9 @@ class PopulateHeader extends AbstractPopulator
         list($version,$code,$message) = explode(" ", $header);
 
         $this->response->setStatusCode($code,$message);
-        $this->response->setProtocolVersion(array_pop(explode("/",$version)));
+
+        $version_parts = explode("/",$version);
+        $this->response->setProtocolVersion(array_pop($version_parts));
     }
 
     private function parseHeader($header) {
