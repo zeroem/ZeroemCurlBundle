@@ -1,6 +1,8 @@
 <?php
 
-namespace Zeroem\RequestExecutorBundle;
+namespace Zeroem\RemoteHttpKernelBundle;
+
+use Symfony\Component\HttpKernel\HttpKernelInterface;
 
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -12,14 +14,42 @@ use Symfony\Component\HttpFoundation\HeaderBag;
  *
  * @author Darrell Hamilton <darrell.noice@gmail.com>
  */
-class Executor
+class RemoteHttpKernel implements HttpKernelInterface
 {
+    /**
+     * Additional Curl Options to override calculated values
+     * and to set values that cannot be interpreted
+     *
+     * @var array
+     */
+    private $curlOptions;
+
+    public function __construct(array $curlOptions = array()) {
+        $this->curlOptions = $curlOptions;
+    }
+
     static private $_methodOptionMap = array(
         "GET"=>CURLOPT_GET,
         "POST"=>CURLOPT_POST,
         "HEAD"=>CURLOPT_NOBODY,
         "PUT"=>CURLOPT_PUT
     );
+
+    public function handle(Request $request, $type = HttpKernelInterface::MASTER_REQUEST, $catch = true) {
+        try {
+            return $this->handleRaw($request, $this->curlOptions);
+        } catch (\Exception $e) {
+            if (false === $catch) {
+                throw $e;
+            }
+
+            return $this->handleException($e, $request);
+        }
+    }
+
+    private function handleException(\Exception $e, Request $request) {
+
+    }
 
     /**
      * Execute a Request object via cURL
@@ -28,7 +58,7 @@ class Executor
      * @param array $options additional curl options to set/override
      * @return Response
      */
-    static public function execute(Request $request, array $options = array()) {
+    private function handleRaw(Request $request, array $options = array()) {
 
         $handle = curl_init($request->getUri());
 
