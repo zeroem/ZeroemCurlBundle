@@ -8,7 +8,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\HeaderBag;
 
-use Zeroem\RemoteHttpKernelBundle\ResponsePopulator\PopulateHeaders;
+use Zeroem\RemoteHttpKernelBundle\ResponsePopulator\PopulateHeader;
 use Zeroem\RemoteHttpKernelBundle\ResponsePopulator\PopulateContent;
 
 /**
@@ -32,7 +32,7 @@ class RemoteHttpKernel implements HttpKernelInterface
     }
 
     static private $_methodOptionMap = array(
-        "GET"=>CURLOPT_GET,
+        "GET"=>CURLOPT_HTTPGET,
         "POST"=>CURLOPT_POST,
         "HEAD"=>CURLOPT_NOBODY,
         "PUT"=>CURLOPT_PUT
@@ -51,7 +51,10 @@ class RemoteHttpKernel implements HttpKernelInterface
     }
 
     private function handleException(\Exception $e, Request $request) {
-
+        return new Response(
+            $e->getMessage() . "\n\n" . print_r($e->getTrace(),1),
+            500
+        );
     }
 
     /**
@@ -71,7 +74,7 @@ class RemoteHttpKernel implements HttpKernelInterface
             $handle,
             array(
                 CURLOPT_HTTPHEADER=>$this->buildHeadersArray($request->headers),
-                CURLOPT_HEADERFUNCTION=>array(new PopulateHeaders($response),"populate"),
+                CURLOPT_HEADERFUNCTION=>array(new PopulateHeader($response),"populate"),
                 CURLOPT_WRITEFUNCTION=>array(new PopulateContent($response),"populate"),
             )
         );
@@ -88,18 +91,16 @@ class RemoteHttpKernel implements HttpKernelInterface
         curl_exec($handle);
 
         $exception = $this->getErrorException($handle);
-        curl_close($handle);
         
         if (false !== $exception) {
             throw $exception;
         }
 
-        $response->setStatusCode(curl_getinfo($handle,CURLINFO_HTTP_CODE));
-
+        curl_close($handle);
         return $response;
     }
 
-    private function setPostFields(resource $handle, Request $request) {
+    private function setPostFields($handle, Request $request) {
         $postfields = null;
         $content = $request->getContent();
 
@@ -112,7 +113,7 @@ class RemoteHttpKernel implements HttpKernelInterface
         curl_setopt($handle, CURLOPT_POSTFIELDS, $postfields);
     }
 
-    private function setMethod(resource $handle, Request $request) {
+    private function setMethod($handle, Request $request) {
         $method = $request->getMethod();
 
         if (isset(static::$_methodOptionMap[$method])) {
@@ -122,7 +123,7 @@ class RemoteHttpKernel implements HttpKernelInterface
         }
     }
 
-    private function getErrorException(resource $handle) {
+    private function getErrorException($handle) {
         $error_no = curl_errno($handle);
 
         if (0 !== $error_no) {
@@ -133,22 +134,6 @@ class RemoteHttpKernel implements HttpKernelInterface
     }
 
     private function buildHeadersArray(HeaderBag $headerBag) {
-        $headers = array();
-
-        foreach($headerBag->all() as $header=>$value) {
-            $headers[] = makeHeaderName($header) . ": {$value}";
-        }
-
-        return $headers;
-    }
-
-    private function makeHeaderName($str) {
-        $parts = explode("_",strtolower($str));
-        
-        foreach($parts as &$part) {
-            $part = ucfirst($part);
-        }
-
-        return implode("-",$parts);
+        return explode("\r\n",$headerBag);
     }
 }

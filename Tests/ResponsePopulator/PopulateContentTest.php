@@ -11,10 +11,10 @@ class PopulatContentTest extends \PHPUnit_Framework_TestCase
 
     public function testResponseContentGetsPopulated() {
         $response = new Response();
-        $populator = new PopluateContent($response);
+        $populator = new PopulateContent($response);
 
-        $popluator->populate(null,self::THE_BODY);
+        $populator->populate(null,self::THE_BODY);
 
-        $this->assertEqual(self::THE_BODY,$response->getContent());
+        $this->assertEquals(self::THE_BODY,$response->getContent());
     }
 }
