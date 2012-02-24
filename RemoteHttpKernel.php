@@ -8,8 +8,10 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\HeaderBag;
 
-use Zeroem\RemoteHttpKernelBundle\ResponsePopulator\Curl\PopulateHeader;
-use Zeroem\RemoteHttpKernelBundle\ResponsePopulator\Curl\PopulateContent;
+use Zeroem\RemoteHttpKernelBundle\Curl\ResponsePopulator\PopulateHeader;
+use Zeroem\RemoteHttpKernelBundle\Curl\ResponsePopulator\PopulateContent;
+use Zeroem\RemoteHttpKernelBundle\Curl\CurlErrorException;
+
 
 /**
  * Utility class for parsing a Request object into a cURL request
@@ -52,7 +54,7 @@ class RemoteHttpKernel implements HttpKernelInterface
 
     private function handleException(\Exception $e, Request $request) {
         return new Response(
-            $e->getMessage() . "\n\n" . print_r($e->getTrace(),1),
+            $e->getMessage(),
             500
         );
     }
