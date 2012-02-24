@@ -1,6 +1,6 @@
 <?php
 
-namespace Zeroem\RemoteHttpKernelBundle\ResponsePopulator;
+namespace Zeroem\RemoteHttpKernelBundle\Curl\ResponsePopulator;
 
 use Symfony\Component\HttpFoundation\Response;
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace Zeroem\RequestExecutorBundle;
+namespace Zeroem\RequestExecutorBundle\Curl;
 
 class CurlErrorException extends \RuntimeException
 {

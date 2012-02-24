@@ -8,8 +8,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\HeaderBag;
 
-use Zeroem\RemoteHttpKernelBundle\ResponsePopulator\PopulateHeader;
-use Zeroem\RemoteHttpKernelBundle\ResponsePopulator\PopulateContent;
+use Zeroem\RemoteHttpKernelBundle\ResponsePopulator\Curl\PopulateHeader;
+use Zeroem\RemoteHttpKernelBundle\ResponsePopulator\Curl\PopulateContent;
 
 /**
  * Utility class for parsing a Request object into a cURL request
