@@ -9,7 +9,7 @@ class PopulateContent extends AbstractPopulator
     public function populate() {
         list($handle, $content) = func_get_args();
 
-        $this->response->setContent($content);
+        $this->response->setContent($this->response->getContent().$content);
 
         return strlen($content);
     }
