@@ -1,6 +1,6 @@
 <?php
 
-namespace Symfony\Component\HttpFoundation\HttpKernel\RemoteHttpKernelBundle;
+namespace Symfony\Component\HttpKernel;
 
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 
