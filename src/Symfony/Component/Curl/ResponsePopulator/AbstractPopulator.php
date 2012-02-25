@@ -11,13 +11,31 @@ namespace Symfony\Component\Curl\ResponsePopulator;
 
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * A Command Patter than encapsulates a Response object
+ * to be acted upon.
+ *
+ * Intended to be passed as callback functions to cURL for
+ * processing the results into a proper Response object
+ */
 abstract class AbstractPopulator
 {
+    /**
+     * @var Response
+     */
     protected $response;
 
+    
+    /**
+     * @param Response $response
+     */
     public function __construct(Response $response) {
         $this->response = $response;
     }
 
+    /**
+     * Takes an arbitrary list of arguments and applies it to the 
+     * encapsulated Response object
+     */
     abstract function populate();
 }
