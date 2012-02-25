@@ -2,6 +2,34 @@
 The RemoteHttpKernel is provided as an alternative to the standard HttpKernel in Symfony.  Rather than using the
 local application, it processes the Request object via cURL, parsing the results into a proper Response object.
 
+# Installation
+First, checkout a copy of the code. Just add the following to the ``deps`` 
+file of your Symfony Standard Distribution:
+
+    [remotehttpkernel]
+        git=git://github.com/zeroem/RemoteHttpKernel.git
+
+Then register the namespace with the autoloader:
+
+```php
+    // app/autoload.php
+    $loader->registerNamespaces(array(
+        // ...
+        'Symfony'              => array(
+                                __DIR__.'/../vendor/symfony/src', 
+                                __DIR__.'/../vendor/bundles',
+                                __DIR__.'/../vendor/remotehttpkernel/src',
+                                ),
+        // ...
+    ));
+```
+
+Now use the ``vendors`` script to clone the newly added repository into your project:
+
+```shell
+    php bin/vendors install
+```
+
 # Example Usage
 
 ```php
