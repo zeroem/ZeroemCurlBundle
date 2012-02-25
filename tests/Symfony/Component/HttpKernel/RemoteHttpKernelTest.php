@@ -1,8 +1,8 @@
 <?php
 
-namespace Zeroem\RemoteHttpKernelBundle\Tests;
+namespace Symfony\Tests\Component\HttpKernel;
 
-use Zeroem\RemoteHttpKernelBundle\RemoteHttpKernel;
+use Symfony\Component\HttpKernel\RemoteHttpKernel;
 
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;

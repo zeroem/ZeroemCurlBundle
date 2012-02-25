@@ -1,8 +1,8 @@
 <?php
 
-namespace Zeroem\RemoteHttpKernelBundle\Tests\Curl\ResponsePopulator;
+namespace Symfony\Tests\Component\Curl\ResponsePopulator;
 
-use Zeroem\RemoteHttpKernelBundle\Curl\ResponsePopulator\PopulateContent;
+use Symfony\Component\Curl\ResponsePopulator\PopulateContent;
 use Symfony\Component\HttpFoundation\Response;
 
 class PopulatContentTest extends \PHPUnit_Framework_TestCase

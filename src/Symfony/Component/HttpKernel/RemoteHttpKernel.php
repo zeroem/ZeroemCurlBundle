@@ -1,6 +1,6 @@
 <?php
 
-namespace Zeroem\RemoteHttpKernelBundle;
+namespace Symfony\Component\HttpFoundation\HttpKernel\RemoteHttpKernelBundle;
 
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 
@@ -8,9 +8,9 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\HeaderBag;
 
-use Zeroem\RemoteHttpKernelBundle\Curl\ResponsePopulator\PopulateHeader;
-use Zeroem\RemoteHttpKernelBundle\Curl\ResponsePopulator\PopulateContent;
-use Zeroem\RemoteHttpKernelBundle\Curl\CurlErrorException;
+use Symfony\Component\Curl\ResponsePopulator\PopulateHeader;
+use Symfony\Component\Curl\ResponsePopulator\PopulateContent;
+use Symfony\Component\Curl\CurlErrorException;
 
 
 /**
