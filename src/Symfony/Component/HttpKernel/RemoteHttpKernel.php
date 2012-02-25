@@ -1,5 +1,12 @@
 <?php
 
+/*
+ * (c) Darrell Hamilton <darrell.noice@gmail.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 namespace Symfony\Component\HttpKernel;
 
 use Symfony\Component\HttpKernel\HttpKernelInterface;
@@ -14,8 +21,7 @@ use Symfony\Component\Curl\CurlErrorException;
 
 
 /**
- * Utility class for parsing a Request object into a cURL request
- * and executing it.
+ * RemoteHttpKernel utilizes curl to convert a Request object into a Response
  *
  * @author Darrell Hamilton <darrell.noice@gmail.com>
  */
@@ -33,6 +39,11 @@ class RemoteHttpKernel implements HttpKernelInterface
         $this->curlOptions = $curlOptions;
     }
 
+    /**
+     * Map specific HTTP requests to their appropriate CURLOPT_* constant
+     *
+     * @var array
+     */
     static private $_methodOptionMap = array(
         "GET"=>CURLOPT_HTTPGET,
         "POST"=>CURLOPT_POST,
@@ -40,7 +51,23 @@ class RemoteHttpKernel implements HttpKernelInterface
         "PUT"=>CURLOPT_PUT
     );
 
-    public function handle(Request $request, $type = HttpKernelInterface::MASTER_REQUEST, $catch = true) {
+
+    /**
+     * Handles a Request to convert it to a Response.
+     *
+     * When $catch is true, the implementation must catch all exceptions
+     * and do its best to convert them to a Response instance.
+     *
+     * @param  Request $request A Request instance
+     * @param  integer $type    The type of the request
+     *                          (one of HttpKernelInterface::MASTER_REQUEST or HttpKernelInterface::SUB_REQUEST)
+     * @param  Boolean $catch   Whether to catch exceptions or not
+     *
+     * @return Response A Response instance
+     *
+     * @throws \Exception When an Exception occurs during processing
+     */
+    public function handle(Request $request, $type = HttpKernelInterface::SUB_REQUEST, $catch = true) {
         try {
             return $this->handleRaw($request, $this->curlOptions);
         } catch (\Exception $e) {
@@ -52,6 +79,7 @@ class RemoteHttpKernel implements HttpKernelInterface
         }
     }
 
+    
     private function handleException(\Exception $e, Request $request) {
         return new Response(
             $e->getMessage(),
@@ -64,22 +92,16 @@ class RemoteHttpKernel implements HttpKernelInterface
      *
      * @param Request $request the request to execute
      * @param array $options additional curl options to set/override
+     *
      * @return Response
+     *
+     * @throws CurlErrorException 
      */
     private function handleRaw(Request $request, array $options = array()) {
-
         $handle = curl_init($request->getUri());
-
         $response = new Response();
 
-        curl_setopt_array(
-            $handle,
-            array(
-                CURLOPT_HTTPHEADER=>$this->buildHeadersArray($request->headers),
-                CURLOPT_HEADERFUNCTION=>array(new PopulateHeader($response),"populate"),
-                CURLOPT_WRITEFUNCTION=>array(new PopulateContent($response),"populate"),
-            )
-        );
+        curl_setopt($handle,CURLOPT_HTTPHEADER,$this->buildHeadersArray($request->headers));
 
         $this->setMethod($handle,$request);
 
@@ -90,18 +112,33 @@ class RemoteHttpKernel implements HttpKernelInterface
         // Provided Options should override interpreted options
         curl_setopt_array($handle, $options);
 
+        // These options must not be tampered with to ensure proper functionality
+        curl_setopt_array(
+            $handle,
+            array(
+                CURLOPT_HEADERFUNCTION=>array(new PopulateHeader($response),"populate"),
+                CURLOPT_WRITEFUNCTION=>array(new PopulateContent($response),"populate"),
+            )
+        );
+
         curl_exec($handle);
 
         $exception = $this->getErrorException($handle);
-        
+        curl_close($handle);
+
         if (false !== $exception) {
             throw $exception;
         }
 
-        curl_close($handle);
         return $response;
     }
 
+    /**
+     * Populate the POSTFIELDS option
+     *
+     * @param resource $handle the curl handle
+     * @param Request $request the Request object we're populating
+     */
     private function setPostFields($handle, Request $request) {
         $postfields = null;
         $content = $request->getContent();
@@ -115,6 +152,12 @@ class RemoteHttpKernel implements HttpKernelInterface
         curl_setopt($handle, CURLOPT_POSTFIELDS, $postfields);
     }
 
+    /**
+     * Determine and set the HTTP request method
+     *
+     * @param resource $handle the curl handle
+     * @param Request $request the Request object we're populating
+     */
     private function setMethod($handle, Request $request) {
         $method = $request->getMethod();
 
@@ -125,6 +168,13 @@ class RemoteHttpKernel implements HttpKernelInterface
         }
     }
 
+    /**
+     * Check to see if an error occurred during the cURL request
+     *
+     * @param resource $handle the curl handle
+     *
+     * @return CurlErrorException|boolean An Exception or false if no error
+     */
     private function getErrorException($handle) {
         $error_no = curl_errno($handle);
 
@@ -135,6 +185,13 @@ class RemoteHttpKernel implements HttpKernelInterface
         return false;
     }
 
+    /**
+     * Convert a HeaderBag into an array of headers appropriate for cURL
+     *
+     * @param HeaderBag $headerBag headers to parse
+     *
+     * @return array An array of header strings
+     */
     private function buildHeadersArray(HeaderBag $headerBag) {
         return explode("\r\n",$headerBag);
     }
