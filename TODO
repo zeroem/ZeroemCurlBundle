@@ -1,7 +1,7 @@
+* More Unit Tests
 * Implement more cURL options
    - PUT: CURLOPT_INFILE, CURLOPT_INFILESIZE
    - SSL: CURLOPT_SSL_VERIFYPEER, CURLOPT_CAINFO, etc
    - Other?
-
 * Consider wrapping the curl_* calls in an OO interface
 * Consider providing a cURL service for configuration reuse
