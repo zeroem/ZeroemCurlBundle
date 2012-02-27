@@ -18,7 +18,7 @@ class RemoteHttpKernelTest extends \PHPUnit_Framework_TestCase
 {
 
     public function testHandleRequest() {
-        $request = Request::create("http://www.wikipedia.org");
+        $request = Request::create("http://symfony.com");
         $kernel = new RemoteHttpKernel();
 
         $response = $kernel->handle($request);
