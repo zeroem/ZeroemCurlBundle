@@ -109,6 +109,18 @@ class RemoteHttpKernel implements HttpKernelInterface
             $this->setPostFields($handle, $request);
         }
 
+        if("PUT" === $request->getMethod() && count($request->files->all()) > 0) {
+            $file = current($request->files->all());
+            $fileHandle = 
+            curl_setopt_array(
+                              $handle,
+                              array(
+                                    CURLOPT_INFILE=>'@'.$file->getRealPath(),
+                                    CURLOPT_INFILESIZE=>$file->getSize()
+                                    )
+                              );
+        }
+
         // Provided Options should override interpreted options
         curl_setopt_array($handle, $options);
 
@@ -132,6 +144,7 @@ class RemoteHttpKernel implements HttpKernelInterface
 
         return $response;
     }
+
 
     /**
      * Populate the POSTFIELDS option
