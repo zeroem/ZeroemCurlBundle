@@ -4,6 +4,10 @@ namespace Symfony\Component\Curl;
 
 class Request
 {
+    /**
+     * the cURL handle resource for this request
+     * @var resource
+     */
     private $_handle;
 
     /**
@@ -19,6 +23,11 @@ class Request
     );
 
 
+    /**
+     * Instantiate a new cURL Request object
+     *
+     * @param $url string URL to initialize the cURL handle with
+     */
     public function __construct($url=null) {
         if(isset($url)) {
             $this->_handle = curl_init($url);
@@ -27,14 +36,25 @@ class Request
         }
     }
 
+    /**
+     * Getter for the internal curl handle resource
+     *
+     * @return resource the curl handle
+     */
     public function getHandle() {
         return $this->handle;
     }
 
+    /**
+     * Alias of the curl_setopt function
+     */
     public function setOption($key, $value) {
         return curl_setopt($this->_handle, $key, $value);
     }
 
+    /**
+     * Alias of the curl_setopt_array function
+     */
     public function setOptionArray(array $arr) {
         return curl_setopt_array($this->_handle, $arr);
     }
@@ -43,6 +63,12 @@ class Request
         curl_close($this->_handle);
     }
 
+    /**
+     * Execute the cURL request
+     *
+     * @return mixed the results of curl_exec
+     * @throws CurlErrorException
+     */
     public function execute() {
         $value = curl_exec($this->_handle);
 
@@ -55,6 +81,9 @@ class Request
         return $value;
     }
 
+    /**
+     * Alias of the curl_getinfo function
+     */
     public function getInfo() {
         return curl_getinfo($this->_handle);
     }
@@ -74,3 +103,4 @@ class Request
         }
     }
 }
+
