@@ -15,6 +15,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\HeaderBag;
 
+use Symfony\Component\Curl\Request as CurlRequest;
 use Symfony\Component\Curl\ResponsePopulator\PopulateHeader;
 use Symfony\Component\Curl\ResponsePopulator\PopulateContent;
 use Symfony\Component\Curl\CurlErrorException;
@@ -38,18 +39,6 @@ class RemoteHttpKernel implements HttpKernelInterface
     public function __construct(array $curlOptions = array()) {
         $this->curlOptions = $curlOptions;
     }
-
-    /**
-     * Map specific HTTP requests to their appropriate CURLOPT_* constant
-     *
-     * @var array
-     */
-    static private $_methodOptionMap = array(
-        "GET"=>CURLOPT_HTTPGET,
-        "POST"=>CURLOPT_POST,
-        "HEAD"=>CURLOPT_NOBODY,
-        "PUT"=>CURLOPT_PUT
-    );
 
 
     /**
@@ -99,48 +88,39 @@ class RemoteHttpKernel implements HttpKernelInterface
      */
     private function handleRaw(Request $request, array $options = array()) {
         $handle = curl_init($request->getUri());
+        $curl = new CurlRequest($request->getUri());
         $response = new Response();
 
-        curl_setopt($handle,CURLOPT_HTTPHEADER,$this->buildHeadersArray($request->headers));
+        $curl->setOption(CURLOPT_HTTPHEADER,$this->buildHeadersArray($request->headers));
 
-        $this->setMethod($handle,$request);
+        $curl->setMethod($request->getMethod());
 
         if ("POST" === $request->getMethod()) {
-            $this->setPostFields($handle, $request);
+            $this->setPostFields($curl, $request);
         }
 
         if("PUT" === $request->getMethod() && count($request->files->all()) > 0) {
             $file = current($request->files->all());
-            $fileHandle = 
-            curl_setopt_array(
-                              $handle,
-                              array(
-                                    CURLOPT_INFILE=>'@'.$file->getRealPath(),
-                                    CURLOPT_INFILESIZE=>$file->getSize()
-                                    )
-                              );
+
+            $curl->setOptionArray(
+                array(
+                    CURLOPT_INFILE=>'@'.$file->getRealPath(),
+                    CURLOPT_INFILESIZE=>$file->getSize()
+                )
+            );
         }
 
-        // Provided Options should override interpreted options
-        curl_setopt_array($handle, $options);
+        $curl->setOptionArray($options);
 
         // These options must not be tampered with to ensure proper functionality
-        curl_setopt_array(
-            $handle,
+        $curl->setOptionArray(
             array(
                 CURLOPT_HEADERFUNCTION=>array(new PopulateHeader($response),"populate"),
                 CURLOPT_WRITEFUNCTION=>array(new PopulateContent($response),"populate"),
             )
         );
 
-        curl_exec($handle);
-
-        $exception = $this->getErrorException($handle);
-        curl_close($handle);
-
-        if (false !== $exception) {
-            throw $exception;
-        }
+        $curl->execute();
 
         return $response;
     }
@@ -152,7 +132,7 @@ class RemoteHttpKernel implements HttpKernelInterface
      * @param resource $handle the curl handle
      * @param Request $request the Request object we're populating
      */
-    private function setPostFields($handle, Request $request) {
+    private function setPostFields(CurlRequest $curl, Request $request) {
         $postfields = null;
         $content = $request->getContent();
 
@@ -162,40 +142,7 @@ class RemoteHttpKernel implements HttpKernelInterface
             $postfields = $request->getRequest()->all();
         }
 
-        curl_setopt($handle, CURLOPT_POSTFIELDS, $postfields);
-    }
-
-    /**
-     * Determine and set the HTTP request method
-     *
-     * @param resource $handle the curl handle
-     * @param Request $request the Request object we're populating
-     */
-    private function setMethod($handle, Request $request) {
-        $method = $request->getMethod();
-
-        if (isset(static::$_methodOptionMap[$method])) {
-            curl_setopt($handle,static::$_methodOptionMap[$method],true);
-        } else {
-            curl_setopt($handle,CURLOPT_CUSTOMREQUEST,$method);
-        }
-    }
-
-    /**
-     * Check to see if an error occurred during the cURL request
-     *
-     * @param resource $handle the curl handle
-     *
-     * @return CurlErrorException|boolean An Exception or false if no error
-     */
-    private function getErrorException($handle) {
-        $error_no = curl_errno($handle);
-
-        if (0 !== $error_no) {
-            return new CurlErrorException(curl_error($handle), $error_no);
-        }
-
-        return false;
+        $curl->setOption(CURLOPT_POSTFIELDS, $postfields);
     }
 
     /**
