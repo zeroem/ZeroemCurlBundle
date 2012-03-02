@@ -2,7 +2,7 @@
 
 namespace Symfony\Component\Curl;
 
-class Request
+class Request implements CurlRequest
 {
     /**
      * the cURL handle resource for this request
