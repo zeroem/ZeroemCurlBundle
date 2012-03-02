@@ -104,17 +104,23 @@ class MultiManager implements CurlRequest
         $active = false;
         $status = false;
 
+        
         do {
             $status = curl_multi_exec($this->handle, $active);
-            $info = curl_multi_info_read($this->handle);
-            if (false !== $info) {
-                $this->processInfo($info);
+
+            // Block until there's something to do.
+            if(curl_multi_select($this->handle) != -1) {
+                while($info = curl_multi_info_read($this->handle)) {
+                    $this->processInfo($info);
+                } 
             }
         } while ($status === CURLM_CALL_MULTI_PERFORM || $active);
 
-        while($info !== false) {
+        // Finish processing any remaining request data
+        while($info = curl_multi_info_read($this->handle)) {
             $this->processInfo($info);
-        }
+        } 
+
 
         return $status;
     }
