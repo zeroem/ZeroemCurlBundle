@@ -84,8 +84,8 @@ class Request implements CurlRequest
     /**
      * Alias of the curl_getinfo function
      */
-    public function getInfo() {
-        return curl_getinfo($this->_handle);
+    public function getInfo($flag=0) {
+        return curl_getinfo($this->_handle,$flag);
     }
 
     /**
