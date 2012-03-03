@@ -1,6 +1,6 @@
 <?php
 
-namspace Zeroem\CurlBundle;
+namespace Zeroem\CurlBundle;
 
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 
