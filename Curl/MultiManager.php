@@ -2,6 +2,8 @@
 
 namespace Zeroem\CurlBundle\Curl;
 
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+
 /**
  * 
  */
@@ -22,13 +24,12 @@ class MultiManager implements CurlRequest
     private $requests = array();
 
     /**
-     * A hash of object ids and the array of callbacks associated with that object id
-     *
-     * @var array
+     * @var EventDispatcherInterface
      */
-    private $callbacks = array();
+    private $dispatcher;
 
-    public function __construct() {
+    public function __construct(EventDispatcherInterface $dispatcher=null) {
+        $this->dispatcher = $dispatcher;
         $this->handle = curl_multi_init();
     }
 
@@ -134,18 +135,15 @@ class MultiManager implements CurlRequest
     private function processInfo(array $info) {
         $request = $this->findRequest($info["handle"]);
 
-        if($request !== false) {
-            $this->executCallbacks($request, $info["msg"], $info["result"]);
-        }
-    }
-
-    private function executeCallbacks(Request $request, $message, $result) {
-        $oid = spl_object_hash($request);
-
-        if(isset($this->callbacks[$oid])) {
-            foreach($this->callbacks[$oid] as $callback) {
-                $callback($request, $message, $result);
-            }
+        if(isset($this->dispatcher)) {
+            $this->dispatcher->dispatch(
+                CurlEvents::MULTI_INFO, 
+                new MultiInfoEvent(
+                    $this, 
+                    $request, 
+                    new MultiInfo($info)
+                )
+            );
         }
     }
 
@@ -163,50 +161,5 @@ class MultiManager implements CurlRequest
 
             return false;
         }
-    }
-
-    
-    /**
-     * Register a callback function to be called when curl_multi_get_info
-     * returns information about this request during the execution process
-     *
-     * @param Request $request The request this callback will be bound to
-     * @param callable $callback the function to be called.  Takes 3 parameters, the Request object and
-     * the msg and result data returned from curl_multi_get_info
-     *
-     * @return MultiManager $this
-     */
-    public function addCallback(Request $request, $callback) {
-        $oid = spl_object_hash($request);
-
-        if(!isset($this->callbacks[$oid])) {
-            $this->callbacks[$oid] = array();
-        }
-
-        $this->callbacks[$oid][] = $callback;
-
-        return $this;
-    }
-
-    /**
-     * Remove a callback associated with a particular Request object
-     *
-     * @param Request $request
-     * @param callable $callback
-     * @return callable|boolean the callback that was removed or false if it was not found
-     */
-    public function removeCallback(Request $request, $callback) {
-        $oid = spl_object_hash($request);
-
-        if(isset($this->callbacks[$oid])) {
-            $index = array_search($callback, $this->callbacks[$oid], true);
-
-            if($index !== false) {
-                unset($this->callbacks[$oid][$index]);
-                return $callback;
-            }
-        }
-
-        return false;
     }
 }
