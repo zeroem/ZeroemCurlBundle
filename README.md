@@ -7,19 +7,25 @@ First, checkout a copy of the code. Just add the following to the ``deps``
 file of your Symfony Standard Distribution:
 
     [remotehttpkernel]
-        git=git://github.com/zeroem/RemoteHttpKernel.git
+        git=git://github.com/zeroem/ZeroemCurlBundle.git
+        target=/bundles/Zeroem/CurlBundle/
 
-Then register the namespace with the autoloader:
+Then add the bundle to your AppKernel and register the namespace with the autoloader:
+
+```php
+    // app/AppKernel.php
+    $bundles = array(
+        // ...
+        new Zeroem\CurlBundle\ZeroemCurlBundle(),        
+        // ...
+    );
+```
 
 ```php
     // app/autoload.php
     $loader->registerNamespaces(array(
         // ...
-        'Symfony'              => array(
-                                __DIR__.'/../vendor/symfony/src', 
-                                __DIR__.'/../vendor/bundles',
-                                __DIR__.'/../vendor/remotehttpkernel/src',
-                                ),
+        'Zeroem'              => __DIR__.'/../vendor/bundles'
         // ...
     ));
 ```
@@ -36,7 +42,7 @@ Now use the ``vendors`` script to clone the newly added repository into your pro
 <?php
 
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpKernel\RemoteHttpKernel;
+use Zeroem\CurlBundle\HttpKernel\RemoteHttpKernel;
 
 $request = Request::create("http://www.symfony.com");
 $remoteKernel = new RemoteHttpKernel();
