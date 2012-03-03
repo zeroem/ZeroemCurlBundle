@@ -7,9 +7,9 @@
  * file that was distributed with this source code.
  */
 
-namespace Symfony\Tests\Component\Curl\ResponsePopulator;
+namespace Zeroem\CurlBundle\Tests\Curl\ResponsePopulator;
 
-use Symfony\Component\Curl\ResponsePopulator\PopulateContent;
+use Zeroem\CurlBundle\Curl\ResponsePopulator\PopulateContent;
 use Symfony\Component\HttpFoundation\Response;
 
 class PopulatContentTest extends \PHPUnit_Framework_TestCase

@@ -7,7 +7,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Symfony\Component\HttpKernel;
+namespace Zeroem\CurlBundle\HttpKernel;
 
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 
@@ -15,10 +15,10 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\HeaderBag;
 
-use Symfony\Component\Curl\Request as CurlRequest;
-use Symfony\Component\Curl\ResponsePopulator\PopulateHeader;
-use Symfony\Component\Curl\ResponsePopulator\PopulateContent;
-use Symfony\Component\Curl\CurlErrorException;
+use Zeroem\CurlBundle\Curl\Request as CurlRequest;
+use Zeroem\CurlBundle\Curl\ResponsePopulator\PopulateHeader;
+use Zeroem\CurlBundle\Curl\ResponsePopulator\PopulateContent;
+use Zeroem\CurlBundle\Curl\CurlErrorException;
 
 
 /**

@@ -7,7 +7,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Symfony\Component\Curl;
+namespace Zeroem\CurlBundle\Curl;
 
 class CurlErrorException extends \RuntimeException
 {

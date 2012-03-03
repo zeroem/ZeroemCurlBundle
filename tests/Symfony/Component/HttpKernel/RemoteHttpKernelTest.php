@@ -7,9 +7,9 @@
  * file that was distributed with this source code.
  */
 
-namespace Symfony\Tests\Component\HttpKernel;
+namespace Zeroem\CurlBundle\Tests\HttpKernel;
 
-use Symfony\Component\HttpKernel\RemoteHttpKernel;
+use Zeroem\CurlBundle\HttpKernel\RemoteHttpKernel;
 
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;

@@ -7,9 +7,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Symfony\Component\Curl\ResponsePopulator;
-
-use Symfony\Component\HttpFoundation\Response;
+namespace Zeroem\CurlBundle\Curl\ResponsePopulator;
 
 /**
  * Populates the content field of the Response object

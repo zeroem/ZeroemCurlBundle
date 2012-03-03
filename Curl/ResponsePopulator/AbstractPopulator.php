@@ -7,7 +7,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Symfony\Component\Curl\ResponsePopulator;
+namespace Zeroem\CurlBundle\Curl\ResponsePopulator;
 
 use Symfony\Component\HttpFoundation\Response;
 

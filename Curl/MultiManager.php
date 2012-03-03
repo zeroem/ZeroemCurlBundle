@@ -1,6 +1,6 @@
 <?php
 
-namespace Symfony\Component\Curl;
+namespace Zeroem\CurlBundle\Curl;
 
 /**
  * 
