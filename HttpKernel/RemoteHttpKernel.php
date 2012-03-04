@@ -19,6 +19,7 @@ use Zeroem\CurlBundle\Curl\Request as CurlRequest;
 use Zeroem\CurlBundle\Curl\ResponsePopulator\PopulateHeader;
 use Zeroem\CurlBundle\Curl\ResponsePopulator\PopulateContent;
 use Zeroem\CurlBundle\Curl\CurlErrorException;
+use Zeroem\CurlBundle\Curl\RequestGenerator;
 
 
 /**
@@ -29,15 +30,15 @@ use Zeroem\CurlBundle\Curl\CurlErrorException;
 class RemoteHttpKernel implements HttpKernelInterface
 {
     /**
-     * Additional Curl Options to override calculated values
-     * and to set values that cannot be interpreted
+     * An instance of Curl\RequestGenerator for getting preconfigured
+     * Curl\Request objects
      *
-     * @var array
+     * @var RequestGenerator
      */
-    private $curlOptions;
+    private $generator;
 
-    public function __construct(array $curlOptions = array()) {
-        $this->curlOptions = $curlOptions;
+    public function __construct(RequestGenerator $generator = null) {
+        $this->generator = $generator;
     }
 
 
@@ -58,7 +59,7 @@ class RemoteHttpKernel implements HttpKernelInterface
      */
     public function handle(Request $request, $type = HttpKernelInterface::SUB_REQUEST, $catch = true) {
         try {
-            return $this->handleRaw($request, $this->curlOptions);
+            return $this->handleRaw($request);
         } catch (\Exception $e) {
             if (false === $catch) {
                 throw $e;
@@ -76,6 +77,14 @@ class RemoteHttpKernel implements HttpKernelInterface
         );
     }
 
+    private function getCurlRequest() {
+        if(isset($this->generator)) {
+            return $this->generator->getRequest();
+        } else {
+            return new CurlRequest();
+        }
+    }
+
     /**
      * Execute a Request object via cURL
      *
@@ -86,9 +95,9 @@ class RemoteHttpKernel implements HttpKernelInterface
      *
      * @throws CurlErrorException 
      */
-    private function handleRaw(Request $request, array $options = array()) {
-        $handle = curl_init($request->getUri());
-        $curl = new CurlRequest($request->getUri());
+    private function handleRaw(Request $request) {
+        $curl = $this->getCurlRequest();
+        $curl->setOption(CURLOPT_URL,$request->getUri());
         $response = new Response();
 
         $curl->setOption(CURLOPT_HTTPHEADER,$this->buildHeadersArray($request->headers));
@@ -110,8 +119,6 @@ class RemoteHttpKernel implements HttpKernelInterface
             );
         }
 
-        $curl->setOptionArray($options);
-
         // These options must not be tampered with to ensure proper functionality
         $curl->setOptionArray(
             array(
@@ -129,7 +136,7 @@ class RemoteHttpKernel implements HttpKernelInterface
     /**
      * Populate the POSTFIELDS option
      *
-     * @param resource $handle the curl handle
+     * @param CurlRequest $curl cURL request object
      * @param Request $request the Request object we're populating
      */
     private function setPostFields(CurlRequest $curl, Request $request) {
