@@ -11,15 +11,18 @@ namespace Zeroem\CurlBundle\Tests\HttpKernel;
 
 use Zeroem\CurlBundle\HttpKernel\RemoteHttpKernel;
 
+use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 
-class RemoteHttpKernelTest extends \PHPUnit_Framework_TestCase
+class RemoteHttpKernelTest extends WebTestCase // \PHPUnit_Framework_TestCase
 {
-
     public function testHandleRequest() {
+        $client = static::createClient();
+        $container = $client->getContainer();
+        $kernel = $container->get("remotehttpkernel");
         $request = Request::create("http://symfony.com");
-        $kernel = new RemoteHttpKernel();
+
 
         $response = $kernel->handle($request);
 
