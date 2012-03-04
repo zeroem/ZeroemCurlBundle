@@ -42,14 +42,17 @@ Now use the ``vendors`` script to clone the newly added repository into your pro
 <?php
 
 use Symfony\Component\HttpFoundation\Request;
-use Zeroem\CurlBundle\HttpKernel\RemoteHttpKernel;
 
-$request = Request::create("http://www.symfony.com");
-$remoteKernel = new RemoteHttpKernel();
-$response = $remoteKernel->handle($request);
-
-$response->send();
-
+// ....
+public function testAction() {
+    $request = Request::create("http://www.symfony.com");
+    $remoteKernel = $this->get("remotehttpkernel");
+    $response = $remoteKernel->handle($request);
+    
+    // forward the response to the browser
+    $response->send();
+}
+// ....
 ```
 
 # Goals
