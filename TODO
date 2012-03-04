@@ -1,6 +1,0 @@
-* More Unit Tests
-* Implement more cURL options
-   - SSL: CURLOPT_SSL_VERIFYPEER, CURLOPT_CAINFO, etc
-   - Other?
-* cURL service for configuration reuse
-* RemoteHttpKernel service
