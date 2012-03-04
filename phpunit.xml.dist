@@ -10,10 +10,14 @@
          stopOnFailure="false"
          syntaxCheck="false"
          bootstrap="./../../../../app/bootstrap.php.cache"
->
-    <testsuites>
-        <testsuite name="ZeroemRemoteHttpKernel Test Suite">
-            <directory>./Tests</directory>
-        </testsuite>
-    </testsuites>
+         >
+  <testsuites>
+    <testsuite name="ZeroemRemoteHttpKernel Test Suite">
+      <directory>./Tests</directory>
+    </testsuite>
+  </testsuites>
+
+  <php>
+    <server name="KERNEL_DIR" value="./../../../../app/" />
+  </php>
 </phpunit>
