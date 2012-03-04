@@ -11,6 +11,7 @@ namespace Zeroem\CurlBundle\Curl;
 
 /**
  * An OO wrapper on the curl_* functions in PHP
+ */
 class Request implements CurlRequest
 {
     /**
