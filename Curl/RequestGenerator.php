@@ -15,10 +15,16 @@ namespace Zeroem\CurlBundle\Curl;
  */
 class RequestGenerator
 {
-    private $options;
+    private $options=array();
 
     public function __construct(array $options=array()) {
-        $this->options = $options;
+        foreach($options as $token=>$value) {
+            if(is_string($token)) {
+                $token = constant($token);
+            }
+
+            $this->addOption($token,$value);
+        }
     }
 
     /**
