@@ -6,7 +6,7 @@ local application, it processes the Request object via cURL, parsing the results
 First, checkout a copy of the code. Just add the following to the ``deps`` 
 file of your Symfony Standard Distribution:
 
-    [remotehttpkernel]
+    [ZeroemCurlBundle]
         git=git://github.com/zeroem/ZeroemCurlBundle.git
         target=/bundles/Zeroem/CurlBundle/
 
