@@ -1,10 +1,22 @@
 <?php
 
+/*
+ * (c) Darrell Hamilton <darrell.noice@gmail.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 namespace Zeroem\CurlBundle\Curl;
 
-
+/**
+ * An OO Representation of the data returned by curl_multi_info_read
+ */
 class MultiInfo
 {
+    /**
+     * @var resource the handle associated with this information
+     */
     private $handle;
     private $message;
     private $result;

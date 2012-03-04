@@ -1,7 +1,18 @@
 <?php
 
+/*
+ * (c) Darrell Hamilton <darrell.noice@gmail.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 namespace Zeroem\CurlBundle\Curl;
 
+/**
+ * A service class for generating Curl\Request objects with an initial
+ * set of CURLOPT_* options set
+ */
 class RequestGenerator
 {
     private $options;

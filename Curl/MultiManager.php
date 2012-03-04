@@ -1,11 +1,18 @@
 <?php
 
+/*
+ * (c) Darrell Hamilton <darrell.noice@gmail.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 namespace Zeroem\CurlBundle\Curl;
 
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
- * 
+ * Manage the execution of multiple Curl\Request objects in parallel
  */
 class MultiManager implements CurlRequest
 {
