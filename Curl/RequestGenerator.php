@@ -35,10 +35,13 @@ class RequestGenerator
      * @param mixed $value the cURL option value
      * @return $this
      */
-    public function addOption($token, $value) {
-        $this->options[$token] = $value;
-        return $this;
+    public function addOption($option, $value) {
+        if(CurlOptions::checkOptionValue($option,$value)) {
+            $this->options[$option] = $value;
+            return $this;
+        }
     }
+
 
     /**
      * Remove an option from the list of options to be applied to
@@ -48,12 +51,12 @@ class RequestGenerator
      * @return mixed the value the option was set to or false 
      *               if the option was not set
      */
-    public function removeOption($token) {
+    public function removeOption($option) {
         $result = false;
 
-        if(array_key_exists($token, $this->options)) {
-            $result = $this->options[$token];
-            unset($this->options[$token]);
+        if(array_key_exists($option, $this->options)) {
+            $result = $this->options[$option];
+            unset($this->options[$option]);
         }
 
         return $result;

@@ -58,14 +58,20 @@ class Request implements CurlRequest
     /**
      * Alias of the curl_setopt function
      */
-    public function setOption($key, $value) {
-        return curl_setopt($this->_handle, $key, $value);
+    public function setOption($option, $value) {
+        if(CurlOptions::checkOptionValue($option,$value)) {
+            return curl_setopt($this->_handle, $option, $value);
+        }
     }
 
     /**
      * Alias of the curl_setopt_array function
      */
     public function setOptionArray(array $arr) {
+        foreach($arr as $option => $value) {
+            CurlOptions::checkOptionValue($option, $value);
+        }
+
         return curl_setopt_array($this->_handle, $arr);
     }
 
