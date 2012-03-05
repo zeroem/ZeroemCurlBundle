@@ -25,7 +25,7 @@ final class CurlOptions
         //CURLOPT_FTPASCII => "bool",
         CURLOPT_FTPLISTONLY => "bool",
         CURLOPT_HEADER => "bool",
-        CURLINFO_HEADER_OUT = "bool",
+        CURLINFO_HEADER_OUT => "bool",
         CURLOPT_HTTPGET => "bool",
         CURLOPT_HTTPPROXYTUNNEL => "bool",
 
