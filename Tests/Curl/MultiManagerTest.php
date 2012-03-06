@@ -10,13 +10,17 @@ class MultiManagerTest extends \PHPUnit_Framework_TestCase
     public function testMutliManager() {
         $mm = new MultiManager();
 
-        $requests = array(
-            new Request("http://symfony.com"),
-            new Request("http://www.google.com"),
+        $urls = array(
+            "http://symfony.com",
+            "http://www.google.com",
         );
 
-        foreach($requests as $request) {
+        $requests = array();
+
+        foreach($urls as $url) {
+            $request = new Request($url);
             $request->setOption(CURLOPT_RETURNTRANSFER,true);
+            $requests[] = $request;
             $mm->addRequest($request);
         }
 
