@@ -1,0 +1,21 @@
+{
+    "name": "zeroem/curl-bundle",
+    "type": "symfony-bundle",
+    "description": "Allows you to easily create and execute HTTP Requests with cURL",
+    "keywords": ["curl","httpkernel","http"],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Darrell Hamilton",
+            "email": "darrell.noice@gmail.com"
+        }
+    ],
+    "require": {
+        "php": ">=5.3.2",
+        "symfony/http-foundation": ">=2.*"
+    },
+    "autoload": {
+        "psr-0": { "Zeroem\\CurlBundle": "" }
+    },
+    "target-dir": "Zeroem/CurlBundle"
+}
