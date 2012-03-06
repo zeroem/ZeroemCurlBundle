@@ -21,8 +21,8 @@ class MultiManager implements CurlRequest
      *
      * @var resource
      */
-    private $handle;
-
+    private $_handle;
+    
     /**
      * A hash of object ids and the associated Request object registered with this object
      *
@@ -37,7 +37,7 @@ class MultiManager implements CurlRequest
 
     public function __construct(EventDispatcherInterface $dispatcher=null) {
         $this->dispatcher = $dispatcher;
-        $this->handle = curl_multi_init();
+        $this->_handle = curl_multi_init();
     }
 
     public function __destruct() {
@@ -45,7 +45,7 @@ class MultiManager implements CurlRequest
             $this->removeRequest($request);
         }
 
-        curl_multi_close($this->handle);
+        curl_multi_close($this->_handle);
     }
 
     /**
@@ -61,7 +61,7 @@ class MultiManager implements CurlRequest
 
         if(!isset($this->requests[$oid])) {
             $this->requests[$oid] = $request;
-            curl_multi_add_handle($request->getHandle());
+            curl_multi_add_handle($this->_handle, $request->getHandle());
         }
         
         return $this;
@@ -82,7 +82,7 @@ class MultiManager implements CurlRequest
         if(isset($this->requests[$oid])) {
             unset($this->requests[$oid]);
             $result = $request;
-            curl_multi_remove_handle($request->getHandle());
+            curl_multi_remove_handle($this->_handle, $request->getHandle());
         }
 
         return $result;
@@ -97,7 +97,7 @@ class MultiManager implements CurlRequest
      * @return string
      */
     public function getContent(Request $request) {
-        return curl_multi_getcontent($this->handle, $request->getHandle());
+        return curl_multi_getcontent($request->getHandle());
     }
 
     /**
@@ -114,18 +114,18 @@ class MultiManager implements CurlRequest
 
         
         do {
-            $status = curl_multi_exec($this->handle, $active);
+            $status = curl_multi_exec($this->_handle, $active);
 
             // Block until there's something to do.
-            if(curl_multi_select($this->handle) != -1) {
-                while($info = curl_multi_info_read($this->handle)) {
+            if(curl_multi_select($this->_handle) != -1) {
+                while($info = curl_multi_info_read($this->_handle)) {
                     $this->processInfo($info);
                 } 
             }
         } while ($status === CURLM_CALL_MULTI_PERFORM || $active);
 
         // Finish processing any remaining request data
-        while($info = curl_multi_info_read($this->handle)) {
+        while($info = curl_multi_info_read($this->_handle)) {
             $this->processInfo($info);
         } 
 

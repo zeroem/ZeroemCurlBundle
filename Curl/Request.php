@@ -52,7 +52,7 @@ class Request implements CurlRequest
      * @return resource the curl handle
      */
     public function getHandle() {
-        return $this->handle;
+        return $this->_handle;
     }
 
     /**
