@@ -1,7 +1,18 @@
 <?php
 
+/*
+ * (c) Darrell Hamilton <darrell.noice@gmail.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
+
 namespace Zeroem\CurlBundle\Curl;
 
+/**
+ * Curl Options and the valid type(s) for each
+ */
 final class CurlOptions
 {
     static private $option_value_types = array(
