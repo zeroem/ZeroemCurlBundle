@@ -118,5 +118,9 @@ class Request implements CurlRequest
             curl_setopt($this->_handle,CURLOPT_CUSTOMREQUEST,$method);
         }
     }
+
+    public function __clone() {
+        $this->_handle = curl_copy_handle($this->_handle);
+    }
 }
 
