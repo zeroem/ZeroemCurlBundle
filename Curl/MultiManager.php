@@ -143,7 +143,7 @@ class MultiManager implements CurlRequest
     private function processInfo(array $info) {
         $request = $this->findRequest($info["handle"]);
 
-        if(isset($this->dispatcher)) {
+        if(isset($this->dispatcher) && false !== $request) {
             $this->dispatcher->dispatch(
                 CurlEvents::MULTI_INFO, 
                 new MultiInfoEvent(
@@ -161,13 +161,13 @@ class MultiManager implements CurlRequest
      * @param resource $handle a cURL handle
      * @return Request|boolean the associated Request object or false if it is not found
      */
-    private function findRequest($handle) {
+    public function findRequest($handle) {
         foreach($this->requests as $request) {
             if($handle === $request->getHandle()) {
                 return $request;
             }
-
-            return false;
         }
+
+        return false;
     }
 }
