@@ -4,7 +4,8 @@ parameters:
 services:
     request_generator:
         class:     Zeroem\CurlBundle\Curl\RequestGenerator
-        arguments: [%request_generator.options%]
+        calls:
+            - [ applyOptions, [%request_generator.options%] ]
 
     remotehttpkernel:
         class:     Zeroem\CurlBundle\HttpKernel\RemoteHttpKernel
