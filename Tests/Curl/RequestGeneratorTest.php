@@ -13,9 +13,8 @@ use Zeroem\CurlBundle\Curl\RequestGenerator;
 
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
-class RequestGeneratorTest extends WebTestCase
+class RequestGeneratorTest extends \PHPUnit_Framework_TestCase
 {
-    
     public function testSetAndUnsetOptions() {
         $generator = new RequestGenerator();
 
@@ -26,17 +25,5 @@ class RequestGeneratorTest extends WebTestCase
 
         // now that it's already been removed, it should return false
         $this->assertFalse($generator->removeOption(CURLOPT_RETURNTRANSFER));
-    }
-
-    public function testServiceConfiguration() {
-        $client = static::createClient();
-        $container = $client->getContainer();
-        $generator = $container->get("request_generator");
-
-        $request = $generator->getRequest();
-
-        // not sure what to do with this as curl doesn't provide any means of
-        // checking what options have been set
-        // $this->assert...
     }
 }

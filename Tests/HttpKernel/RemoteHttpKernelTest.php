@@ -15,17 +15,17 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 
-class RemoteHttpKernelTest extends WebTestCase // \PHPUnit_Framework_TestCase
-{
-    public function testHandleRequest() {
-        $client = static::createClient();
-        $container = $client->getContainer();
-        $kernel = $container->get("remotehttpkernel");
-        $request = Request::create("http://symfony.com");
 
+class RemoteHttpKernelTest extends \PHPUnit_Framework_TestCase
+{
+    const URL = "http://symfony.com";
+    public function testHandleRequest() {
+        $kernel = new RemoteHttpKernel();
+        $request = Request::create(self::URL);
 
         $response = $kernel->handle($request);
 
         $this->assertEquals(200,$response->getStatusCode());
+        $this->assertNotEmpty($response->getContent());
     }
 }
