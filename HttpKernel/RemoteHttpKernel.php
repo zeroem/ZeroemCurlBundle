@@ -96,11 +96,16 @@ class RemoteHttpKernel implements HttpKernelInterface
      * @throws CurlErrorException 
      */
     private function handleRaw(Request $request) {
-        $curl = $this->getCurlRequest();
-        $curl->setOption(CURLOPT_URL,$request->getUri());
         $response = new Response();
-
-        $curl->setOption(CURLOPT_HTTPHEADER,$this->buildHeadersArray($request->headers));
+        $curl = $this->getCurlRequest();
+        $curl->setOptionArray(
+            array(
+                CURLOPT_URL=>$request->getUri(),
+                CURLOPT_HTTPHEADER=>$this->buildHeadersArray($request->headers),
+                CURLINFO_HEADER_OUT=>true
+            )
+        );
+        
 
         $curl->setMethod($request->getMethod());
 
