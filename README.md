@@ -2,7 +2,7 @@
 The RemoteHttpKernel is provided as an alternative to the standard HttpKernel in Symfony.  Rather than using the
 local application, it processes the Request object via cURL, parsing the results into a proper Response object.
 
-# Installation
+# Symfony Installation
 First, checkout a copy of the code. Just add the following to the ``deps`` 
 file of your Symfony Standard Distribution:
 
@@ -36,23 +36,52 @@ Now use the ``vendors`` script to clone the newly added repository into your pro
     php bin/vendors install
 ```
 
-# Example Usage
+# Composer Installation
+Add `zeroem/curl-bundle` to your composer.json file:
+
+```json
+{
+// ...
+   require: {
+   // ...
+       "zeroem/curl-bundle": ""
+   // ...
+   }
+// ...
+}
+```
+
+And include the composer autoloader:
 
 ```php
-<?php
+require("./vendor/.composer/autoload.php");
+```
 
+# Features
+
+## RemoteHttpKernel
+The `RemoteHttpKernel` provides the bridge between the the standard Request/Response architecture
+used by Symfony and the cURL library.
+
+```php
 use Symfony\Component\HttpFoundation\Request;
+use Zeroem\CurlBundle\HttpKernel\RemoteHttpKernel;
 
-// ....
-public function testAction() {
-    $request = Request::create("http://www.symfony.com");
-    $remoteKernel = $this->get("remotehttpkernel");
-    $response = $remoteKernel->handle($request);
-    
-    // forward the response to the browser
-    $response->send();
-}
-// ....
+$request = Request::create("http://www.symfony.com");
+$remoteKernel = new RemoteHttpKernel();
+$response = $remoteKernel->handle($request);
+```
+
+## RequestGenerator
+The `RequestGenerator` simplifies building multiple, similar cURL Request Objects.
+
+```php
+use Zeroem\CurlBundle\Curl\RequestGenerator;
+
+$generator = new RequestGenerator(array(CURLOPT_RETURNTRANSFER=>true));
+
+// Automatically has CURLOPT_RETURNTRANSFER set to true
+$request = $generator->getRequest();
 ```
 
 # Goals
