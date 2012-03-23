@@ -71,6 +71,10 @@ $request = Request::create("http://www.symfony.com");
 $remoteKernel = new RemoteHttpKernel();
 $response = $remoteKernel->handle($request);
 ```
+### Caveats
+Due to the way the HttpFoundation\Request object generates the Request Uri, any changes made
+to Request::$query will not be reflected when the cURL request is made.  I'm currently looking for
+a proper solution to this issue.
 
 ## RequestGenerator
 The `RequestGenerator` simplifies building multiple, similar cURL Request Objects.
