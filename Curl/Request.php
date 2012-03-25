@@ -18,7 +18,7 @@ class Request implements CurlRequest
      * the cURL handle resource for this request
      * @var resource
      */
-    private $_handle;
+    private $handle;
 
     /**
      * Map specific HTTP requests to their appropriate CURLOPT_* constant
@@ -40,9 +40,9 @@ class Request implements CurlRequest
      */
     public function __construct($url=null) {
         if(isset($url)) {
-            $this->_handle = curl_init($url);
+            $this->handle = curl_init($url);
         } else {
-            $this->_handle = curl_init();
+            $this->handle = curl_init();
         }
     }
 
@@ -52,7 +52,7 @@ class Request implements CurlRequest
      * @return resource the curl handle
      */
     public function getHandle() {
-        return $this->_handle;
+        return $this->handle;
     }
 
     /**
@@ -60,7 +60,7 @@ class Request implements CurlRequest
      */
     public function setOption($option, $value) {
         if(CurlOptions::checkOptionValue($option,$value)) {
-            return curl_setopt($this->_handle, $option, $value);
+            return curl_setopt($this->handle, $option, $value);
         }
     }
 
@@ -72,11 +72,11 @@ class Request implements CurlRequest
             CurlOptions::checkOptionValue($option, $value);
         }
 
-        return curl_setopt_array($this->_handle, $arr);
+        return curl_setopt_array($this->handle, $arr);
     }
 
     public function __destruct() {
-        curl_close($this->_handle);
+        curl_close($this->handle);
     }
 
     /**
@@ -86,12 +86,12 @@ class Request implements CurlRequest
      * @throws CurlErrorException
      */
     public function execute() {
-        $value = curl_exec($this->_handle);
+        $value = curl_exec($this->handle);
 
-        $error_no = curl_errno($this->_handle);
+        $error_no = curl_errno($this->handle);
 
         if (0 !== $error_no) {
-            throw new CurlErrorException(curl_error($this->_handle), $error_no);
+            throw new CurlErrorException(curl_error($this->handle), $error_no);
         }
 
         return $value;
@@ -102,9 +102,9 @@ class Request implements CurlRequest
      */
     public function getInfo($flag=null) {
         if(isset($flag)) {
-            return curl_getinfo($this->_handle,$flag);
+            return curl_getinfo($this->handle,$flag);
         } else {
-            return curl_getinfo($this->_handle);
+            return curl_getinfo($this->handle);
         }
     }
 
@@ -117,14 +117,14 @@ class Request implements CurlRequest
      */
     public function setMethod($method) {
         if (isset(static::$_methodOptionMap[$method])) {
-            curl_setopt($this->_handle,static::$_methodOptionMap[$method],true);
+            return $this->setOption(static::$_methodOptionMap[$method],true);
         } else {
-            curl_setopt($this->_handle,CURLOPT_CUSTOMREQUEST,$method);
+            return $this->setOption(CURLOPT_CUSTOMREQUEST,$method);
         }
     }
 
     public function __clone() {
-        $this->_handle = curl_copy_handle($this->_handle);
+        $this->handle = curl_copy_handle($this->handle);
     }
 }
 

@@ -29,7 +29,7 @@ class MultiManager implements CurlRequest
      *
      * @var resource
      */
-    private $_handle;
+    private $handle;
     
     /**
      * A hash of object ids and the associated Request object registered with this object
@@ -51,9 +51,15 @@ class MultiManager implements CurlRequest
      */
     private $blocking;
 
+    /**
+     * @param EventDispatcherInterface $dispatcher  The event dispatcher that will be notified 
+     *                                              upon completed request
+     * @param boolean $blocking Whether the execution should block until finished or wait until
+     *                          the destructor is called to block
+     */
     public function __construct(EventDispatcherInterface $dispatcher=null,$blocking=true) {
         $this->dispatcher = $dispatcher;
-        $this->_handle = curl_multi_init();
+        $this->handle = curl_multi_init();
         $this->blocking = $blocking;
     }
 
@@ -66,7 +72,7 @@ class MultiManager implements CurlRequest
             $this->removeRequest($request);
         }
 
-        curl_multi_close($this->_handle);
+        curl_multi_close($this->handle);
     }
 
     /**
@@ -82,7 +88,7 @@ class MultiManager implements CurlRequest
 
         if(!isset($this->requests[$oid])) {
             $this->requests[$oid] = $request;
-            curl_multi_add_handle($this->_handle, $request->getHandle());
+            curl_multi_add_handle($this->handle, $request->getHandle());
         }
         
         return $this;
@@ -103,7 +109,7 @@ class MultiManager implements CurlRequest
         if(isset($this->requests[$oid])) {
             unset($this->requests[$oid]);
             $result = $request;
-            curl_multi_remove_handle($this->_handle, $request->getHandle());
+            curl_multi_remove_handle($this->handle, $request->getHandle());
         }
 
         return $result;
@@ -134,7 +140,7 @@ class MultiManager implements CurlRequest
             return $this->executeBlocking();
         } else {
             return $this->errorCheck(
-                curl_multi_exec($this->_handle,$active)
+                curl_multi_exec($this->handle,$active)
             );
         }
     }
@@ -145,10 +151,10 @@ class MultiManager implements CurlRequest
         $status = false;
         
         do {
-            $status = curl_multi_exec($this->_handle, $active);
+            $status = curl_multi_exec($this->handle, $active);
 
             // Block until there's something to do.
-            if(curl_multi_select($this->_handle) != -1) {
+            if(curl_multi_select($this->handle) != -1) {
                 $this->processMultiInfo();
             }
         } while ($status === CURLM_CALL_MULTI_PERFORM || $active);
@@ -172,7 +178,7 @@ class MultiManager implements CurlRequest
     }
 
     private function processMultiInfo() {
-        while($info = curl_multi_info_read($this->_handle)) {
+        while($info = curl_multi_info_read($this->handle)) {
             $this->processInfo($info);
         } 
     }
