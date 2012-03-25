@@ -16,6 +16,14 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
  */
 class MultiManager implements CurlRequest
 {
+
+    private static $errors = array(
+        CURLM_BAD_HANDLE      => 'Bad Handle',
+        CURLM_BAD_EASY_HANDLE => 'Bad Easy Handle',
+        CURLM_OUT_OF_MEMORY   => 'Out of Memory',
+        CURLM_INTERNAL_ERROR  => 'Internal Error'
+    );
+
     /**
      * The cURL multi handle
      *
@@ -35,12 +43,25 @@ class MultiManager implements CurlRequest
      */
     private $dispatcher;
 
-    public function __construct(EventDispatcherInterface $dispatcher=null) {
+    /**
+     * Whether we should block until finished, let it go and finish processing
+     * via the destructor
+     *
+     * @var boolean
+     */
+    private $blocking;
+
+    public function __construct(EventDispatcherInterface $dispatcher=null,$blocking=true) {
         $this->dispatcher = $dispatcher;
         $this->_handle = curl_multi_init();
+        $this->blocking = $blocking;
     }
 
     public function __destruct() {
+        if(!$this->blocking) {
+            $this->executeBlocking();
+        }
+
         foreach($this->requests as $request) {
             $this->removeRequest($request);
         }
@@ -106,12 +127,22 @@ class MultiManager implements CurlRequest
      * Analogous to curl_multi_exec
      * 
      * @return int the result of curl_multi_exec
+     * @throws CurlErrorException 
      */
     public function execute() {
+        if($this->blocking) {
+            return $this->executeBlocking();
+        } else {
+            return $this->errorCheck(
+                curl_multi_exec($this->_handle,$active)
+            );
+        }
+    }
+
+    private function executeBlocking() {
         $info = false;
         $active = false;
         $status = false;
-
         
         do {
             $status = curl_multi_exec($this->_handle, $active);
@@ -122,8 +153,20 @@ class MultiManager implements CurlRequest
             }
         } while ($status === CURLM_CALL_MULTI_PERFORM || $active);
 
+        
+        // We shouldn't do any processing if the multi handle blows up
+        $this->errorCheck($status);
+
         // Finish processing any remaining request data
         $this->processMultiInfo();
+
+        return $status;
+    }
+
+    private function errorCheck($status) {
+        if(isset(static::$errors[$status])) {
+            throw new CurlErrorException(static::$errors[$status]);
+        }
 
         return $status;
     }

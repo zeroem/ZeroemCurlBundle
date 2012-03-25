@@ -35,14 +35,18 @@ class MultiManagerTest extends \PHPUnit_Framework_TestCase
         }
     }
 
-    public function testMutliManager() {
+    /**
+     * @dataProvider blockingValues
+     */
+    public function testMutliManager($blocking) {
+        $this->count = 0;
         $dispatcher = new EventDispatcher();
         $dispatcher->addListener(
             CurlEvents::MULTI_INFO,
             array($this,"handleMultiInfoEvent")
         );
 
-        $mm = new MultiManager($dispatcher);
+        $mm = new MultiManager($dispatcher,$blocking);
         $requests = $this->makeRequestList($this->urls);
 
         foreach($requests as $request) {
@@ -50,6 +54,9 @@ class MultiManagerTest extends \PHPUnit_Framework_TestCase
         }
 
         $mm->execute();
+        
+        // for the "non blocking" multi manager, we need to trigger the destructor
+        unset($mm);
 
         // verify there were events for each url
         $this->assertEquals(count($this->urls),$this->count);
@@ -58,6 +65,13 @@ class MultiManagerTest extends \PHPUnit_Framework_TestCase
             // if the request executed, it will have a non-zero status code
             $this->assertNotEquals(0, $request->getInfo(CURLINFO_HTTP_CODE));
         }
+    }
+
+    public function blockingValues() {
+        return array(
+            array(true),
+            array(false)
+        );
     }
 
     private function makeRequestList(array $urls) {
