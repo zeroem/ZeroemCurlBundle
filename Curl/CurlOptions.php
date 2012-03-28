@@ -174,7 +174,7 @@ final class CurlOptions
 
         if(is_array($type)) {
             foreach($type as $item) {
-                $result |= $this->checkType($value, $item);
+                $result |= self::checkType($value, $item);
             }
 
         } else {
