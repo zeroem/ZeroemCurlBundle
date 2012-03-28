@@ -67,7 +67,7 @@ class PopulateHeader extends AbstractPopulator
      * @param string $header
      */
     private function parseHeader($header) {
-        if(!empty($header)) {
+        if(!empty($header) && strpos(": ", $header)) {
             list($name, $value) = explode(": ",$header);
             $this->response->headers->set($name, $value);
         }
