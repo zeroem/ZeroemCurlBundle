@@ -39,6 +39,8 @@ class CurlOptionsTest extends \PHPUnit_Framework_TestCase
             array(CURLOPT_BUFFERSIZE,10),
             array(CURLOPT_CAINFO,"a string"),
             array(CURLOPT_HTTP200ALIASES,array(200,404,401)),
+            array(CURLOPT_POSTFIELDS,array("key"=>"value")),
+            array(CURLOPT_POSTFIELDS,"key=value")
         );
     }
 
