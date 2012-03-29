@@ -33,7 +33,6 @@ class PopulateHeader extends AbstractPopulator
 
         $cleanHeader = trim($headerString);
 
-
         // The HTTP/1.0 200 OK header is also passed through this function
         // and must be parsed differently than the other HTTP headers
         if(false !== stripos($cleanHeader,"http/")) {
@@ -67,9 +66,15 @@ class PopulateHeader extends AbstractPopulator
      * @param string $header
      */
     private function parseHeader($header) {
-        if(!empty($header) && strpos(": ", $header)) {
-            list($name, $value) = explode(": ",$header);
-            $this->response->headers->set($name, $value);
+        if(!empty($header)) {
+            $pos = strpos($header, ": ");
+
+            if(false !== $pos) {
+                $name = substr($header,0,$pos);
+                $value = substr($header,$pos+2);
+
+                $this->response->headers->set($name, $value);
+            }
         }
     }
 }
