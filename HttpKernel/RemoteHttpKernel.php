@@ -16,8 +16,8 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\HeaderBag;
 
 use Zeroem\CurlBundle\Curl\Request as CurlRequest;
-use Zeroem\CurlBundle\Curl\ResponsePopulator\PopulateHeader;
-use Zeroem\CurlBundle\Curl\ResponsePopulator\PopulateContent;
+use Zeroem\CurlBundle\Curl\Collector\HeaderCollector;
+use Zeroem\CurlBundle\Curl\Collector\ContentCollector;
 use Zeroem\CurlBundle\Curl\CurlErrorException;
 use Zeroem\CurlBundle\Curl\RequestGenerator;
 
@@ -98,7 +98,6 @@ class RemoteHttpKernel implements HttpKernelInterface
      * @throws CurlErrorException 
      */
     private function handleRaw(Request $request) {
-        $response = new Response();
         $curl = $this->lastCurlRequest = $this->getCurlRequest();
         $curl->setOptionArray(
             array(
@@ -107,7 +106,6 @@ class RemoteHttpKernel implements HttpKernelInterface
                 CURLINFO_HEADER_OUT=>true
             )
         );
-        
 
         $curl->setMethod($request->getMethod());
 
@@ -126,15 +124,27 @@ class RemoteHttpKernel implements HttpKernelInterface
             );
         }
 
+        $content = new ContentCollector();
+        $headers = new HeaderCollector();
+
         // These options must not be tampered with to ensure proper functionality
         $curl->setOptionArray(
             array(
-                CURLOPT_HEADERFUNCTION=>array(new PopulateHeader($response),"populate"),
-                CURLOPT_WRITEFUNCTION=>array(new PopulateContent($response),"populate"),
+                CURLOPT_HEADERFUNCTION=>array($headers, "collect"),
+                CURLOPT_WRITEFUNCTION=>array($content, "collect"),
             )
         );
 
         $curl->execute();
+
+        $response = new Response(
+            $content->retrieve(),
+            $headers->getCode(),
+            $headers->retrieve()
+        );
+
+        $response->setProtocolVersion($headers->getVersion());
+        $response->setStatusCode($headers->getCode(), $headers->getMessage());
 
         return $response;
     }

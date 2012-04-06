@@ -1,34 +1,17 @@
 <?php
 
-/*
- * (c) Darrell Hamilton <darrell.noice@gmail.com>
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
+namespace Zeroem\CurlBundle\Curl\Collector;
 
-namespace Zeroem\CurlBundle\Curl\ResponsePopulator;
+use Symfony\Component\HttpFoundation\Cookie;
 
-/**
- * Populates the headers of the Response object
- *
- * This is intended to be passed to cURL as the callback for
- * CURLOPT_HEADERFUNCTION.
- *
- * The function will be passed two arguments, the cURL handle 
- * responsible for the callback, and an HTTP header
- *
- * The function must return the number of bytes written.
- */
-class PopulateHeader extends AbstractPopulator
+class HeaderCollector implements CollectorInterface
 {
-    /**
-     * @param resource $handle cURL handle
-     * @param string $headerString one HTTP Header to be written
-     *
-     * @return integer length of the content written
-     */
-    public function populate() {
+    private $headers = array();
+    private $version;
+    private $code;
+    private $message;
+
+    public function collect() {
         list($handle, $headerString) = func_get_args();
 
         $cleanHeader = trim($headerString);
@@ -53,10 +36,9 @@ class PopulateHeader extends AbstractPopulator
     private function parseHttp($header) {
         list($version,$code,$message) = explode(" ", $header);
 
-        $this->response->setStatusCode($code,$message);
-
-        $version_parts = explode("/",$version);
-        $this->response->setProtocolVersion(array_pop($version_parts));
+        $this->version = array_pop(explode("/",$version));
+        $this->code = $code;
+        $this->message = $message;
     }
 
     /**
@@ -73,8 +55,24 @@ class PopulateHeader extends AbstractPopulator
                 $name = substr($header,0,$pos);
                 $value = substr($header,$pos+2);
 
-                $this->response->headers->set($name, $value);
+                $this->headers[$name] = $value;
             }
         }
+    }
+
+    public function retrieve() {
+        return $this->headers;
+    }
+
+    public function getVersion() {
+        return $this->version;
+    }
+
+    public function getMessage() {
+        return $this->message;
+    }
+
+    public function getCode() {
+        return $this->code;
     }
 }
