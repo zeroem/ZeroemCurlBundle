@@ -37,6 +37,8 @@ class RemoteHttpKernel implements HttpKernelInterface
      */
     private $generator;
 
+    private $lastCurlRequest;
+
     public function __construct(RequestGenerator $generator = null) {
         $this->generator = $generator;
     }
@@ -97,7 +99,7 @@ class RemoteHttpKernel implements HttpKernelInterface
      */
     private function handleRaw(Request $request) {
         $response = new Response();
-        $curl = $this->getCurlRequest();
+        $curl = $this->lastCurlRequest = $this->getCurlRequest();
         $curl->setOptionArray(
             array(
                 CURLOPT_URL=>$request->getUri(),
@@ -166,5 +168,9 @@ class RemoteHttpKernel implements HttpKernelInterface
      */
     private function buildHeadersArray(HeaderBag $headerBag) {
         return explode("\r\n",$headerBag);
+    }
+
+    public function getLastCurlRequest() {
+        return $this->lastCurlRequest;
     }
 }
