@@ -19,9 +19,34 @@ use Symfony\Component\HttpFoundation\Request;
 class RemoteHttpKernelTest extends \PHPUnit_Framework_TestCase
 {
     const URL = "http://symfony.com";
+
     public function testHandleRequest() {
         $kernel = new RemoteHttpKernel();
         $request = Request::create(self::URL);
+
+        $response = $kernel->handle($request);
+
+        $this->assertEquals(200,$response->getStatusCode());
+        $this->assertNotEmpty($response->getContent());
+    }
+
+    public function testPostRequest() {
+        $kernel = new RemoteHttpKernel();
+        $request = Request::create(self::URL,"POST",array("herp"=>"derp"));
+
+        $response = $kernel->handle($request);
+
+        $this->assertEquals(200,$response->getStatusCode());
+        $this->assertNotEmpty($response->getContent());
+
+        $request = Request::create(self::URL,
+                                   "POST",
+                                   array(),
+                                   array(),
+                                   array(),
+                                   array(),
+                                   "herp derpity"
+        );
 
         $response = $kernel->handle($request);
 
