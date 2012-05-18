@@ -35,8 +35,9 @@ class HeaderCollector implements CollectorInterface
      */
     private function parseHttp($header) {
         list($version,$code,$message) = explode(" ", $header);
-
-        $this->version = array_pop(explode("/",$version));
+        
+        $versionParts = explode("/",$version);
+        $this->version = end($versionParts);
         $this->code = $code;
         $this->message = $message;
     }
